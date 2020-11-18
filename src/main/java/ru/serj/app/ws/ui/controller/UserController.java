@@ -1,5 +1,6 @@
 package ru.serj.app.ws.ui.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +9,8 @@ import ru.serj.app.ws.exceptions.UserServiceException;
 import ru.serj.app.ws.ui.model.request.UpdateUserDetailsRequestModel;
 import ru.serj.app.ws.ui.model.request.UserDetailsRequestModel;
 import ru.serj.app.ws.ui.model.response.UserRest;
+import ru.serj.app.ws.userservice.UserService;
+import ru.serj.app.ws.userservice.impl.UserServiceImpl;
 
 import javax.validation.Valid;
 import java.util.HashMap;
@@ -17,6 +20,9 @@ import java.util.UUID;
 @RestController
 @RequestMapping("users")
 public class UserController {
+
+    @Autowired
+    UserService userService;
 
     Map<String, UserRest> users;
 
@@ -51,18 +57,7 @@ public class UserController {
             produces = {MediaType.APPLICATION_XML_VALUE, MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity<UserRest> createUser(@Valid @RequestBody UserDetailsRequestModel details) {
 
-        UserRest returnValue = new UserRest();
-        returnValue.setEmail(details.getEmail());
-        returnValue.setFirstName(details.getFirstName());
-        returnValue.setLastName(details.getLastName());
-
-        String userId = UUID.randomUUID().toString();
-        returnValue.setUserId(userId);
-        if (users == null) {
-            users = new HashMap<>();
-        }
-        users.put(userId, returnValue);
-
+        UserRest returnValue = userService.createUser(details);
 
         return new ResponseEntity<>(returnValue, HttpStatus.OK);
     }
